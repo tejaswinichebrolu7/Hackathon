@@ -25,6 +25,7 @@ var listView = {
     title: 'Blog Entries',
     actions: {
         list: function (req) {
+            
             return entries.read(req)
             .then(res => {
                 /* counting the links requires an additional API call per row. please note that the
@@ -37,7 +38,9 @@ var listView = {
                         item.counterTags = item.tags.length
                         item.counterLinks = entryLinks[index].length
                     })
+                    console.log('---- entries---',res);
                     return res
+
                 })
             })
         }

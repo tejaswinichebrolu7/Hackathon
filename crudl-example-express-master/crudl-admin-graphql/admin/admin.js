@@ -6,6 +6,7 @@ var sections = require('./views/sections')
 var categories = require('./views/categories')
 var tags = require('./views/tags')
 var entries = require('./views/entries')
+var hackathons = require('./views/hackathons')
 var { login, logout } = require('./auth')
 
 const OPTIONS = {
@@ -17,7 +18,7 @@ const OPTIONS = {
 var admin = {}
 admin.title = 'crudl.io Express GraphQL Example',
 admin.options = OPTIONS
-admin.views = { users, sections, categories, tags, entries }
+admin.views = { users, sections, categories, tags, entries, hackathons }
 admin.auth = { login, logout }
 admin.custom = { dashboard: CustomDashboard }
 admin.id = 'crudl-example-express'

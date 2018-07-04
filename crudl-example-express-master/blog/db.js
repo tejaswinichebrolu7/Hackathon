@@ -145,6 +145,25 @@ EntryLinkSchema.plugin(mongoosePaginate)
 var EntryLink = mongoose.model('EntryLink', EntryLinkSchema)
 
 
+var HackathonSchema = new Schema({
+    id: { type: String, maxlength: 500, default: '', set: omitUndefined },
+    name: { type: String, maxlength: 500, default: '', set: omitUndefined },
+    status: { type: String, maxlength: 500, default: '', set: omitUndefined },
+    startDate: { type: Date },
+    endDate: { type: Date },
+    emailAddress: { type: String, maxlength: 500, default: '', set: omitUndefined },
+})
+HackathonSchema.pre('save', function(next) {
+    this.updatedate = Date.now()
+    if (!this.createdate) {
+        this.createdate = Date.now()
+    }
+    next()
+})
+HackathonSchema.plugin(mongoosePaginate)
+var Hackathon = mongoose.model('hackathons', HackathonSchema)
+
+
 module.exports = {
     models: {
         User,
@@ -152,7 +171,8 @@ module.exports = {
         Category,
         Tag,
         Entry,
-        EntryLink
+        EntryLink,
+        Hackathon
     },
     url: 'mongodb://localhost/blogapp',
 }

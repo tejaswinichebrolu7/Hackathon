@@ -17,6 +17,7 @@ import {
 } from 'graphql-relay';
 
 import { UserListConnection, UserType, UserInputType, UserResultType, UserDeleteType } from './types/user';
+import { HackathonListConnection, HackathonType, HackathonInputType, HackathonResultType, HackathonDeleteType } from './types/hackathon';
 import { SectionListConnection, SectionType, SectionInputType, SectionResultType, SectionDeleteType } from './types/section';
 import { CategoryListConnection, CategoryType, CategoryInputType, CategoryResultType, CategoryDeleteType } from './types/category';
 import { TagListConnection, TagType, TagInputType, TagResultType, TagDeleteType } from './types/tag';
@@ -83,6 +84,29 @@ let schema = new GraphQLSchema({
                 type: UserType,
                 args: { id: { type: GraphQLID } },
                 resolve: (root, {id}) => db.models.User.findById(id)
+            },
+            hackathon: {
+                type: HackathonType,
+                args: { id: { type: GraphQLID } },
+                resolve: (root, {id}) => db.models.Hackathon.findById(id)
+            },
+            allHackathons: {
+                type: HackathonListConnection,
+                args: {
+                    orderBy: { type: GraphQLString },
+                    ...connectionArgs,
+                },
+                resolve: (root, { ...args }) => {
+                    console.log("//////////////////////////////////////////////////////")
+                    let counter = db.models.Hackathon.count({}).exec(function (err, count) { return count })
+                    return db.models.Hackathon.find({})
+                     .then(function(result) {
+                         let res = connectionFromArray(result, args)
+                         res.filteredCount = result.length
+                         res.totalCount = counter
+                         return res
+                     })
+                }
             },
             allSections: {
                 type: SectionListConnection,
@@ -502,6 +526,43 @@ let schema = new GraphQLSchema({
                     })
                 }
             },
+            addHackathon: {
+                type: HackathonResultType,
+                args: { data: { name: 'data', type: new GraphQLNonNull(HackathonInputType) }},
+                resolve: (root, {data}) => {
+                    console.log('add hackathon',data);
+                    /* prevent Cast to ObjectID failed for ... */
+                    return db.models.Hackathon.create(data)
+                    .then((function(object) { return { nores, hackathon: object } }), function(err) {
+                        let errors = getErrors(err)
+                        return { errors, nores }
+                    })
+                }
+            },
+            changeHackathon: {
+                type: HackathonResultType,
+                args: {
+                    id: { name: 'id', type: new GraphQLNonNull(GraphQLID) },
+                    data: { name: 'data', type: new GraphQLNonNull(HackathonInputType) }
+                },
+                resolve: (root, {id, data}) => {
+                    return db.models.Hackathon.findByIdAndUpdate(id, data, { runValidators: true, new: true  })
+                    .then((function(object) { return { nores, hackathon: object } }), function(err) {
+                        let errors = getErrors(err)
+                        return { errors, nores }
+                    })
+                }
+            },
+            deleteHackathon: {
+                type: HackathonDeleteType,
+                args: { id: { name: 'id', type: new GraphQLNonNull(GraphQLID) }},
+                resolve: (root, {id}) => {
+                    return db.models.Hackathon.findByIdAndRemove(id)
+                    .then((function(object) { return { deleted: true, hackathon: object } }), function(err) {
+                        return { deleted: false, hackathon: object }
+                    })
+                }
+            },
             changeEntry: {
                 type: EntryResultType,
                 args: {
@@ -564,7 +625,7 @@ let schema = new GraphQLSchema({
                         return { deleted: false, entryLink: object }
                     })
                 }
-            },
+            }
         })
     }),
 });

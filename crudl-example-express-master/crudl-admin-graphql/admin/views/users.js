@@ -12,6 +12,7 @@ var listView = {
     title: 'Users',
     actions: {
         list: function (req) {
+            console.log(users.read(req));
             return users.read(req)
         },
     },
@@ -64,7 +65,7 @@ var changeView = {
     path: 'users/:_id',
     title: 'User',
     actions: {
-        get: function (req) { return users(crudl.path._id).read(req) },
+        get: function (req) { console.log('--get user obj---',users(crudl.path._id).read(req)); return users(crudl.path._id).read(req) },
         save: function (req) { return users(crudl.path._id).update(req) },
     },
     normalize: (get) => {
